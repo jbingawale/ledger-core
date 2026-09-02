@@ -1,0 +1,19 @@
+{
+  "name": "account-ledger-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "In-memory, append-only account ledger core. No web layer, no persistence, no UI, no database.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "replay": "node src/replay.js",
+    "test": "node --test test/",
+    "test:failing": "node --test test/design-limitation.test.js",
+    "log": "node tools/worklog.mjs add",
+    "log:commit": "node tools/worklog.mjs commit"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
