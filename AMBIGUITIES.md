@@ -23,6 +23,20 @@ Reversible:  where in the code the switch lives
 
 ## A-04 - Recompute-from-events vs append-correcting-entries when history changes
 
+Ambiguity: when a backdated entry arrives and an earlier day turns out to have been wrong, the brief does not say whether the ledger corrects the past or simply records the new fact and lets the past be re-read.
+
+Readings: (a) store no balances at all and work every balance out from the entries each time it is asked for, (b) keep a running balance per day and write correcting adjustment entries whenever a late arrival changes an earlier day.
+
+Chosen: (a).
+
+Rationale: option (b) needs a stored number that can disagree with the entries behind it, and once those two can disagree the stored one is the one people will trust. It also invents adjustment entries that no event asked for, which pollutes the audit trail with lines the bank never actually did. Option (a) has one source of truth, the entries, and every balance is a fact derived from it. The cost is that every read is a sum, which at this size is nothing.
+
+Impact: none on any printed number. It changes where a bug could hide, not what the answer is.
+
+Reversible: `balanceOn` in `src/balances.js` is the only place a balance is produced.
+
+Consequence worth naming: because a balance is always derived, the same day can honestly report different values depending on when you ask. That is not a bug, it is the point, and the report prints the day you are standing on so the reader can tell which version they are looking at.
+
 ## A-05 - Which version of a revised day's balance earns interest?
 
 ## A-06 - Does the capitalized interest credit itself earn interest?

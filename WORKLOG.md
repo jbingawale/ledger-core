@@ -53,3 +53,14 @@ _7m since previous entry_
 - Decided refusals get recorded. A trail that only shows successes cannot tell a rejected settlement apart from one that never arrived.
 - Reversals point at an event id rather than an amount, so two identical debits on the same day stay distinguishable.
 - 41 tests pass.
+
+<!-- entry ts=2026-09-02T18:36:08+05:30 -->
+## 2026-09-02 18:36 - Step 4 - Balances
+
+_18m since previous entry_
+
+- Built src/balances.js. A balance is a sum over entries, never a stored field.
+- Two filters do the work: value date on or before the day being asked about, and booking day on or before the day we are standing on.
+- Confirmed C-01 by test: day 2 seen from end of day 5 is -370.00, the same day seen from end of day 4 is +250.00, and it returns to +250.00 after the day 6 reversal.
+- Also confirmed day 5 closes at -155.00 before any fee, which is what makes Auth-B impossible to approve.
+- 53 tests pass.
