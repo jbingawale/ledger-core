@@ -45,6 +45,20 @@ Consequence worth naming: because a balance is always derived, the same day can 
 
 ## A-08 - Auth-B: declined when available balance was already negative before the hold
 
+Ambiguity: the rule says an authorisation is approved only if available balance "remains at or above zero after the hold is applied". On day 5 the account is already at -155.00 before Auth-B asks for anything. The rule is written as though the hold is what could push the account under, and it does not say what to do when the account is already under.
+
+Readings: (a) apply the rule literally, so the account fails the test whatever the hold size and Auth-B is declined, (b) read the rule as being about the effect of the hold, so a hold is only refused if it makes things worse than they already were, (c) treat a hold of zero as a special case.
+
+Chosen: (a).
+
+Rationale: the rule is a test on the resulting balance, not on the change. Reading (b) would approve a 90.00 hold on an account that has no money at all, which is the opposite of what a hold check is for. Reading (a) also gives the same answer on the ordinary case, so it is not a special rule for a strange day.
+
+Impact: Auth-B is declined. Under reading (b) it would be approved, available balance would fall to -245.00, and criterion C-05 would suddenly have something to talk about.
+
+Reversible: the single check in `applyAuthorization` in `src/holds.js`.
+
+Side note: a hold of exactly the available balance is approved, because the rule says at or above zero. That edge is tested both ways, at zero and one fils under.
+
 ## A-09 - Are declined authorizations recorded in the ledger?
 
 Ambiguity: the brief describes what happens when an authorisation is approved. It never says what happens to one that is declined.
@@ -74,6 +88,20 @@ Impact: none on any balance.
 Reversible: same place as A-09.
 
 ## A-11 - Settlement below the held amount: when is the difference released?
+
+Ambiguity: Auth-A holds 200.00 and settles for 185.00. The brief does not say what happens to the remaining 15.00.
+
+Readings: (a) the hold closes in full the moment it settles, so 15.00 is available again immediately, (b) the hold stays partly open for the 15.00 until something expires it, (c) the settlement is rejected because it does not match the hold.
+
+Chosen: (a).
+
+Rationale: this is the normal case in card processing, not an error. You authorise 200.00 at a restaurant and the bill comes to 185.00. One authorisation settles once, and settling closes it. Option (b) needs an expiry rule that the brief never gives, and option (c) would reject a completely ordinary transaction.
+
+Impact: available balance on day 4 is 15.00 higher than under reading (b). No ledger balance changes either way.
+
+Reversible: `applySettlement` in `src/holds.js` closes the hold in one step.
+
+Related: a settlement for more than the held amount is not in this stream. The code would book the settled amount as given, because the settled figure is the real one and the hold was only ever an estimate.
 
 ## A-12 - Overdraft fee currency vs account currency (AED fee on a BHD account)
 

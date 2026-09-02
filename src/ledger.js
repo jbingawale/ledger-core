@@ -74,11 +74,11 @@ export class Ledger {
     return this.#store({ kind: RECORD_KINDS.HOLD_CLOSED, account, authId, day, sourceEvent, note });
   }
 
-  refuse({ account, day, sourceEvent, reason }) {
+  refuse({ account, day, sourceEvent, reason, authId, amount }) {
     if (!reason) {
       throw new Error('A refusal must say why.');
     }
-    return this.#store({ kind: RECORD_KINDS.REFUSAL, account, day, sourceEvent, reason });
+    return this.#store({ kind: RECORD_KINDS.REFUSAL, account, day, sourceEvent, reason, authId, amount });
   }
 
   /** How many records exist. Only ever goes up. */

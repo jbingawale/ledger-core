@@ -64,3 +64,15 @@ _18m since previous entry_
 - Confirmed C-01 by test: day 2 seen from end of day 5 is -370.00, the same day seen from end of day 4 is +250.00, and it returns to +250.00 after the day 6 reversal.
 - Also confirmed day 5 closes at -155.00 before any fee, which is what makes Auth-B impossible to approve.
 - 53 tests pass.
+
+<!-- entry ts=2026-09-02T19:01:19+05:30 -->
+## 2026-09-02 19:01 - Step 5 - Holds, approvals and settlements
+
+_25m since previous entry_
+
+- Built src/holds.js. Available balance is ledger balance minus open holds, and a hold never touches the ledger balance.
+- Auth-A approved on day 2 with 250.00 available, settles 185.00 on day 4 and releases the full 200.00 hold, 15.00 goes straight back.
+- Auth-Z settlement refused, no entry written, balance unchanged. The refusal is recorded with its reason.
+- Auth-B declined on day 5: available is already -155.00 before the hold, so it can never be approved. Criterion C-05 is true as written but its premise never fires.
+- Had to widen Ledger.refuse to carry authId and amount so the report can show a declined authorisation properly.
+- 65 tests pass.

@@ -28,21 +28,31 @@ The scale is attached to each currency, not shared across the project. That is w
 
 ### N-07 - Rounding mode
 
+Round down, then hand the leftover units back out. Not round half up on each part independently, because that is what produces 3.334 three times and a total of 10.002. Flooring can only ever lose, never gain, and the leftover step gives back exactly what was lost. Lives in `distribute` in `src/allocate.js`.
+
 ### N-08 - Interest basis (which balance the rate applies to)
 
 ### N-09 - Day-count convention (simple, non-compounding within window)
 
 ### N-10 - Residual allocation direction (earliest-first)
 
+Leftover units go to whichever part was short by the most. When several are equally short, the earliest part wins.
+
+Not last-first, and not random. Earliest-first means the same input always gives the same output, so an auditor re-running the split six months later gets the identical answer. Last-first would work equally well as arithmetic, but it hides the adjustment at the end of the list where people stop reading.
+
 ### N-11 - Instalment count: 3, and why they are not equal
+
+Three, given by E10. They come out as 3.334, 3.333, 3.333 rather than three identical figures. BHD 10.000 simply does not divide by three, so something has to give: either the parts are unequal or the total is wrong. A ledger can survive unequal parts. It cannot survive a wrong total.
 
 ### N-12 - Overdraft fee cap: none
 
 ### N-13 - Hold expiry: none within the window
 
+No expiry, because the brief never mentions one. Real card holds usually expire after 7 to 30 days depending on the scheme, but picking any of those numbers would be inventing a rule that changes the answer. A 5 day expiry would silently release Auth-B before the window closes. Not halving or doubling a number here, refusing to introduce one at all.
+
 ### N-14 - Integer representation (number vs BigInt)
 
-A JavaScript number is exact up to about 9 quadrillion. The largest amount here is 120,000 fils, so there is huge headroom. BigInt would be right for a real bank wide ledger and is a one file change. A `Number.isSafeInteger` guard throws the day that assumption breaks.
+A JavaScript number is exact up to about 9 quadrillion. The largest amount here is 120,000 fils, so there is huge headroom. BigInt would be right for a real bank wide ledger and is a one file change. A `Number.isSafeInteger` guard throws the day that assumption breaks. In production grade we can use decimal.js for handling numbers more proerly.
 
 ### N-15 - Epsilon: none, because there is no float anywhere
 
