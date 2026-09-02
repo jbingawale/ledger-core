@@ -110,3 +110,9 @@ The lesson worth keeping: with this rule, order of evaluation is not a style cho
 ### R-08 - Express / HTTP scaffold
 
 Never built. Noting it because Express was my instinct as a Node developer and the brief forbids a web layer outright. There is no server, no route, no port and no framework anywhere in this repository. The entire thing runs as `npm run replay` and `npm test`.
+
+### R-09 - Making the failing test pass by improving the fee note
+
+Once the deliberately failing test was written, the tempting fix was to change the report so a fee prints as "charged on day 5 for day 2, which stood at -370.00 at the time". That reads well and nobody would question it.
+
+Dropped, because it fixes the sentence rather than the model. The fee still holds no data about the state that justified it, only a longer piece of prose about it. The gap would be exactly where it was, just harder to notice. The test stays red and the limitation stays visible, which is the point of the exercise.

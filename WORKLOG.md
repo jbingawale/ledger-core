@@ -112,3 +112,14 @@ _24m since previous entry_
 - Full run: ACC-001 closes at 390.92, three fees on days 2, 4 and 5, interest 0.92. ACC-002 closes at 10.008. 18 ledger records, none edited.
 - Wrote the README including how to read every line of the output.
 - 103 tests pass.
+
+<!-- entry ts=2026-09-03T00:42:29+05:30 -->
+## 2026-09-03 00:42 - Step 9 - The failing test
+
+_7m since previous entry_
+
+- Wrote test/design-limitation.test.js. It asserts that every overdraft fee sits on a day that is actually overdrawn in the finished ledger, and it fails.
+- All three fees fail it. Days 2, 4 and 5 finish the window at 225.00, 415.00 and 390.00 after the reversal, yet each still carries a 25.00 fee.
+- What it exposes: a fee stores the day it applies to but no data about the state that justified it. The note is prose, not something a later reader can check.
+- Left it failing on purpose. Fixing the printed line would hide the gap rather than close it, and this is the sharpest thing I found in my own model.
+- 104 tests, 103 pass, 1 fails by design.

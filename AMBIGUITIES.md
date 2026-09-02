@@ -39,6 +39,8 @@ Reversible: `assessFeesAtClose` in `src/fees.js` takes the day being closed and 
 
 The cost of this choice: a day can be charged a fee and then, after a later reversal, end up positive. Day 2 finishes the window at +225.00 with a 25.00 fee sitting on it. That looks wrong until you remember the account really was overdrawn as far as the bank knew, and that an append only ledger cannot take a fee back. This is the exact case the deliberately failing test in `test/design-limitation.test.js` is built on.
 
+The cost of this choice is written up as a failing test rather than hidden. `test/design-limitation.test.js` asserts that every fee sits on a day that is overdrawn in the finished ledger, and it fails on all three fees, because the day 6 reversal lifts days 2, 4 and 5 back into credit while the fees remain. That test is the honest record of what this resolution gives up.
+
 ## A-01 - Retroactive fee assessment on a day that already closed
 
 This is the central ambiguity of the whole brief. Everything else is downstream of it.
