@@ -50,9 +50,15 @@ Looked at decimal.js and dinero.js. Both work. Dropped for two reasons: the roun
 
 ### R-04 - Mutating events with a `reversed` flag
 
+The obvious way to handle E9 is to find E7 and set `reversed: true` on it. Dropped because it breaks the one rule the brief calls non negotiable: no event record is ever mutated. It also loses information. A flag tells you the debit was reversed but not when, not by whom and not under which event id. A separate reversal entry carries all of that.
+
 ### R-05 - Deleting or skipping E7 on reversal
 
+Second attempt at the same problem: leave E7 in the event list but skip it when adding up the balance. Dropped for the same reason. Skipping is deleting with extra steps, and it makes the balance depend on hidden logic rather than on the entries you can see. The reversal is now a real 620.00 credit sitting in the ledger where anyone can read it.
+
 ### R-06 - Separate rounding logic for instalments and for interest
+
+I started to write the instalment split and the interest capitalisation as two separate pieces of code. Dropped once I saw they are the same question asked twice: take a total, break it into parts the currency can express, make the parts add back to the total. One function now serves both, with equal weights for the instalments and per day weights for the interest. Two copies would have been two places to get the rounding wrong.
 
 ### R-07 - Single-pass fee assessment across all six days
 

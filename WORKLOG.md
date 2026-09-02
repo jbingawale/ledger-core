@@ -42,3 +42,14 @@ _19m since previous entry_
 - Leftover units go to the biggest shortfall first, ties broken by earliest part, so the answer is identical on every run.
 - One test caught my own bad arithmetic: I expected an untied shortfall in a case where all three tied. Fixed the test, code was right.
 - 26 tests pass, including 3500 random splits that all reconcile exactly.
+
+<!-- entry ts=2026-09-02T18:17:56+05:30 -->
+## 2026-09-02 18:17 - Step 3 - Events and the append only store
+
+_7m since previous entry_
+
+- Built src/events.js: frozen event records carrying both a booking day and a value date, amounts always written positive with direction coming from the type.
+- Built src/ledger.js: one append only store holding entries, holds and refusals. No update, no delete, every record frozen, all() hands back a frozen copy.
+- Decided refusals get recorded. A trail that only shows successes cannot tell a rejected settlement apart from one that never arrived.
+- Reversals point at an event id rather than an amount, so two identical debits on the same day stay distinguishable.
+- 41 tests pass.
