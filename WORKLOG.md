@@ -1,8 +1,7 @@
 # WORKLOG
 
-Append-only. Entries are written by `npm run log` at the moment the work happens;
-commit hashes are attached by `npm run log:commit` immediately after each commit.
-Nothing in this file is back-filled.
+Append-only. Entries are written by `npm run log` at the moment the work happens,
+so the timestamps and the gaps between them are real. Nothing here is back-filled.
 
 <!-- entry ts=2026-09-02T17:36:25+05:30 -->
 ## 2026-09-02 17:36 - Setup

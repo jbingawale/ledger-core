@@ -47,25 +47,6 @@ Both accounts open at zero, given by the brief. Held as `Money` values in `ACCOU
 Why not something other than zero: a non zero opening balance would have to be an entry in the ledger like anything else, because nothing else is allowed to affect a balance. It is not a special field. Opening at zero means the entire closing position of both accounts is explained by the ten events plus the fees and interest the rules produced, with nothing arriving from outside the window. That is what makes the arithmetic in REJECTED.md checkable by hand.
 
 ## Constants chosen by me
-The decisions worth defending are as much about what is missing as what is present. None of the following exists anywhere in this codebase, and each was considered.
-
-**No rounding tolerance or epsilon.** Nothing compares two amounts as "close enough". See N-15.
-
-**No exchange rate.** The AED fee is never converted into BHD. See AMBIGUITIES.md A-12.
-
-**No hold expiry.** Nothing releases a hold except a settlement. See N-13 and A-17.
-
-**No fee cap.** No maximum number of overdraft fees per account per window. See N-12.
-
-**No minimum balance and no overdraft limit.** The brief never mentions either. Adding one would change which authorisations are approved.
-
-**No day cut off time.** A day is one indivisible bucket. See A-16.
-
-**No interest compounding frequency.** Accruals capitalise once, at the end. See N-09.
-
-**No currency other than AED and BHD.** `CURRENCIES` holds exactly the two the brief names. An unknown code throws rather than defaulting to two decimal places.
-
-Each of these would have been a number I invented, and each would have moved a figure in the report. Where the brief is silent, the code is silent too.
 
 ### N-07 - Rounding mode
 
@@ -82,8 +63,6 @@ Positive only means strictly above zero. A day closing at exactly 0.00 earns not
 Simple interest. Each day's accrual is worked out on that day's own closing balance, and no accrual is added to the balance before the next day is worked out.
 
 Why not compound daily: the brief says accruals capitalise as a single credit at the end of day 6. Capitalise is the word for the moment interest joins the balance and starts earning, so saying it happens once at the end says plainly that it does not happen six times along the way. Compounding daily over six days at this rate would change the credit by well under a fils, so the difference is invisible here, but the rule would matter over a year.
-
-### N-09 - Day-count convention (simple, non-compounding within window)
 
 ### N-10 - Residual allocation direction (earliest-first)
 
@@ -105,10 +84,30 @@ No expiry, because the brief never mentions one. Real card holds usually expire 
 
 ### N-14 - Integer representation (number vs BigInt)
 
-A JavaScript number is exact up to about 9 quadrillion. The largest amount here is 120,000 fils, so there is huge headroom. BigInt would be right for a real bank wide ledger and is a one file change. A `Number.isSafeInteger` guard throws the day that assumption breaks. In production grade we can use decimal.js for handling numbers more proerly.
+A JavaScript number is exact up to about 9 quadrillion. The largest amount here is 120,000 fils, so there is huge headroom. BigInt would be right for a real bank wide ledger and is a one file change. A `Number.isSafeInteger` guard throws the day that assumption breaks. In production grade we can use decimal.js for handling numbers more properly.
 
 ### N-15 - Epsilon: none, because there is no float anywhere
 
 There is no epsilon and no tolerance in this codebase. Tolerances exist only because float comparison is unreliable. Every comparison here is between two whole numbers, so it is exact. A tolerance would let the ledger call two different balances equal, which is the one thing a ledger must never do.
 
 ## Constants deliberately NOT introduced
+
+The decisions worth defending are as much about what is missing as what is present. None of the following exists anywhere in this codebase, and each was considered.
+
+**No rounding tolerance or epsilon.** Nothing compares two amounts as "close enough". See N-15.
+
+**No exchange rate.** The AED fee is never converted into BHD. See AMBIGUITIES.md A-12.
+
+**No hold expiry.** Nothing releases a hold except a settlement. See N-13 and A-17.
+
+**No fee cap.** No maximum number of overdraft fees per account per window. See N-12.
+
+**No minimum balance and no overdraft limit.** The brief never mentions either. Adding one would change which authorisations are approved.
+
+**No day cut off time.** A day is one indivisible bucket. See A-16.
+
+**No interest compounding frequency.** Accruals capitalise once, at the end. See N-09.
+
+**No currency other than AED and BHD.** `CURRENCIES` holds exactly the two the brief names. An unknown code throws rather than defaulting to two decimal places.
+
+Each of these would have been a number I invented, and each would have moved a figure in the report. Where the brief is silent, the code is silent too.
