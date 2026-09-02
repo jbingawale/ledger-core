@@ -53,7 +53,7 @@ function add(args) {
   const entry = [
     ``,
     `<!-- entry ts=${localStamp(now)} -->`,
-    `## ${human(now)} — ${phase}`,
+    `## ${human(now)} - ${phase}`,
     ``,
     `_${elapsed(lastStamp(body), now)}_`,
     ``,

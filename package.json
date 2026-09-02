@@ -9,7 +9,7 @@
   },
   "scripts": {
     "replay": "node src/replay.js",
-    "test": "node --test test/",
+    "test": "node --test \"test/**/*.test.js\"",
     "test:failing": "node --test test/design-limitation.test.js",
     "log": "node tools/worklog.mjs add",
     "log:commit": "node tools/worklog.mjs commit"
