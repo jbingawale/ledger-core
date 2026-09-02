@@ -123,3 +123,12 @@ _7m since previous entry_
 - What it exposes: a fee stores the day it applies to but no data about the state that justified it. The note is prose, not something a later reader can check.
 - Left it failing on purpose. Fixing the printed line would hide the gap rather than close it, and this is the sharpest thing I found in my own model.
 - 104 tests, 103 pass, 1 fails by design.
+
+<!-- entry ts=2026-09-03T00:50:44+05:30 -->
+## 2026-09-03 00:50 - Step 10 - Review pass
+
+_8m since previous entry_
+
+- Checked the repo against the README claims. Zero dependencies confirmed, no em dashes anywhere, no web layer, no persistence, no float literals in the arithmetic.
+- Fixed two places where the README sample output had drifted from what the replay actually prints.
+- Suite stands at 104 tests: 103 pass, 1 fails by design.

@@ -63,7 +63,7 @@ DAY 5
 events booked today
   E7   DEBIT          ACC-001      620.00  posted    value date day 2
   E8   AUTHORIZATION  ACC-001       90.00  declined  available -155.00, hold would leave -245.00
-  E10  CREDIT         ACC-002       10.000 posted    3 instalments
+  E10  CREDIT         ACC-002      10.000  posted    3 instalments
 
   ACC-001 (AED)
   earlier days rewritten by what arrived today:
@@ -73,8 +73,7 @@ events booked today
   closing ledger balance      -230.00
   holds                          0.00
   available balance           -230.00
-  overdraft fee          -25.00 for day 2, which closed at -370.00; -25.00 for day 4,
-                         which closed at -180.00; -25.00 for day 5, which closed at -205.00
+  overdraft fee          -25.00 for day 2, which closed at -370.00; -25.00 for day 4, which closed at -180.00; -25.00 for day 5, which closed at -205.00
   authorisations       Auth-A  SETTLED   200.00
                        Auth-Z  DECLINED  180.00
                        Auth-B  DECLINED  90.00

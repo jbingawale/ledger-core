@@ -34,9 +34,38 @@ The scale is attached to each currency, not shared across the project. That is w
 
 ### N-05 - Window length: 6 days
 
+Six days, given by the brief. Stored as `WINDOW_DAYS` in `src/stream.js`.
+
+Why not half it: at three days the exercise disappears. E7 arrives on day 5 and E9 on day 6, so a three day window contains none of the interesting behaviour. Six is also the shortest window that holds the full arc: a day goes wrong, is discovered late, cascades into fees, and is then reversed. Doubling it to twelve would add nothing except more days of the same closing balance.
+
+The number is not hard coded into the logic. Every function takes the day count as an argument, so the same code runs a thirty day window without a change.
+
 ### N-06 - Opening balances: 0.00 / 0.000
 
+Both accounts open at zero, given by the brief. Held as `Money` values in `ACCOUNTS` in `src/stream.js`, one in AED and one in BHD, so even the zero carries its currency and its number of decimal places.
+
+Why not something other than zero: a non zero opening balance would have to be an entry in the ledger like anything else, because nothing else is allowed to affect a balance. It is not a special field. Opening at zero means the entire closing position of both accounts is explained by the ten events plus the fees and interest the rules produced, with nothing arriving from outside the window. That is what makes the arithmetic in REJECTED.md checkable by hand.
+
 ## Constants chosen by me
+The decisions worth defending are as much about what is missing as what is present. None of the following exists anywhere in this codebase, and each was considered.
+
+**No rounding tolerance or epsilon.** Nothing compares two amounts as "close enough". See N-15.
+
+**No exchange rate.** The AED fee is never converted into BHD. See AMBIGUITIES.md A-12.
+
+**No hold expiry.** Nothing releases a hold except a settlement. See N-13 and A-17.
+
+**No fee cap.** No maximum number of overdraft fees per account per window. See N-12.
+
+**No minimum balance and no overdraft limit.** The brief never mentions either. Adding one would change which authorisations are approved.
+
+**No day cut off time.** A day is one indivisible bucket. See A-16.
+
+**No interest compounding frequency.** Accruals capitalise once, at the end. See N-09.
+
+**No currency other than AED and BHD.** `CURRENCIES` holds exactly the two the brief names. An unknown code throws rather than defaulting to two decimal places.
+
+Each of these would have been a number I invented, and each would have moved a figure in the report. Where the brief is silent, the code is silent too.
 
 ### N-07 - Rounding mode
 
