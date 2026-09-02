@@ -60,7 +60,9 @@ export function authorizationStates(ledger, { account, upToDay = ALWAYS }) {
       const existing = states.get(record.authId);
       if (existing) states.set(record.authId, { ...existing, state: AUTH_STATES.SETTLED, closedOn: record.day });
     }
-    if (record.kind === RECORD_KINDS.REFUSAL && record.authId) {
+    // Only a refusal against an authorisation we have never seen means declined.
+    // A refused duplicate settlement must not overwrite a genuine SETTLED state.
+    if (record.kind === RECORD_KINDS.REFUSAL && record.authId && !states.has(record.authId)) {
       states.set(record.authId, { authId: record.authId, state: AUTH_STATES.DECLINED, amount: record.amount, day: record.day });
     }
   }
@@ -74,6 +76,22 @@ export function authorizationStates(ledger, { account, upToDay = ALWAYS }) {
  */
 export function applyAuthorization(ledger, event, { currency }) {
   const day = event.valueDate;
+
+  // Holds are tracked by authorisation id, so a reused id would quietly replace
+  // an existing hold and release money that is still spoken for.
+  const reused = ledger.holdsOpened(event.account).some((hold) => hold.authId === event.authId);
+  if (reused) {
+    ledger.refuse({
+      account: event.account,
+      day: event.bookedOn,
+      sourceEvent: event.id,
+      authId: event.authId,
+      amount: event.amount,
+      reason: `authorisation id ${event.authId} has already been used on this account`,
+    });
+    return { approved: false, duplicate: true };
+  }
+
   const available = availableBalance(ledger, { account: event.account, currency, day, asKnownOn: event.bookedOn });
   const afterHold = available.minus(event.amount);
 

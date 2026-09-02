@@ -168,3 +168,30 @@ test('a hold only counts from the day it was placed', () => {
   assert.equal(heldTotal(ledger, { account: 'ACC-001', currency: 'AED', upToDay: 1 }).format(), '0.00');
   assert.equal(heldTotal(ledger, { account: 'ACC-001', currency: 'AED', upToDay: 2 }).format(), '200.00');
 });
+
+test('a reused authorisation id is refused, not silently swapped in', () => {
+  // Holds are keyed by authorisation id. Without this guard the second hold
+  // replaced the first and 100.00 stopped counting against available balance.
+  const ledger = openingDays();
+  applyAuthorization(ledger, auth('Auth-DUP', '100.00', 1), opts);
+
+  const second = applyAuthorization(ledger, auth('Auth-DUP', '50.00', 1), opts);
+
+  assert.ok(!second.approved);
+  assert.ok(second.duplicate);
+  assert.equal(heldTotal(ledger, { account: 'ACC-001', currency: 'AED' }).format(), '100.00');
+  assert.match(ledger.refusals('ACC-001')[0].reason, /already been used/);
+});
+
+test('a refused duplicate settlement does not undo a SETTLED state', () => {
+  // The money was always right. The report used to flip SETTLED to DECLINED,
+  // because it took whichever record it saw last.
+  const ledger = openingDays();
+  applyAuthorization(ledger, auth('Auth-A', '200.00', 2), opts);
+  applySettlement(ledger, settle('E5', 'Auth-A', '185.00', 4), opts);
+  applySettlement(ledger, settle('E5-again', 'Auth-A', '185.00', 4), opts);
+
+  const states = authorizationStates(ledger, { account: 'ACC-001' });
+  assert.equal(states.length, 1);
+  assert.equal(states[0].state, AUTH_STATES.SETTLED);
+});

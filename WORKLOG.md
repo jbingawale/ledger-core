@@ -132,3 +132,24 @@ _8m since previous entry_
 - Checked the repo against the README claims. Zero dependencies confirmed, no em dashes anywhere, no web layer, no persistence, no float literals in the arithmetic.
 - Fixed two places where the README sample output had drifted from what the replay actually prints.
 - Suite stands at 104 tests: 103 pass, 1 fails by design.
+
+<!-- entry ts=2026-09-03T01:03:08+05:30 -->
+## 2026-09-03 01:03 - Part 2 - Architecture and trade-offs
+
+_12m since previous entry_
+
+- Wrote the Part 2 architecture and trade-offs document, delivered as a PDF, covering append only at scale, value dated entries in production, the authorisation lifecycle, and what was cut.
+- Probed the code rather than assuming. Found two real defects: two holds sharing one authorisation id report a held total of 50.00 instead of 150.00, and a duplicate settlement flips a SETTLED authorisation to DECLINED in the report.
+- Left both unfixed and documented them. Patching them while writing the document would misrepresent what the build actually produced.
+- Named concurrency as the first thing I would fix, because it is the only item on the list that fails silently.
+
+<!-- entry ts=2026-09-03T01:22:52+05:30 -->
+## 2026-09-03 01:22 - Post-build fixes from Part 2 probing
+
+_20m since previous entry_
+
+- Fixed both defects found while writing the architecture document.
+- A reused authorisation id is now refused and recorded instead of silently replacing an existing hold, which had let 100.00 of held money stop counting against available balance.
+- A refusal now only sets DECLINED for an authorisation with no state yet, so a refused duplicate settlement no longer flips a SETTLED authorisation to DECLINED in the report.
+- Added a regression test for each. Recorded both in the Part 2 document as found and fixed, rather than quietly removing them.
+- 106 tests: 105 pass, 1 fails by design.
