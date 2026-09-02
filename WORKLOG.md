@@ -76,3 +76,15 @@ _25m since previous entry_
 - Auth-B declined on day 5: available is already -155.00 before the hold, so it can never be approved. Criterion C-05 is true as written but its premise never fires.
 - Had to widen Ledger.refuse to carry authId and amount so the report can show a declined authorisation properly.
 - 65 tests pass.
+
+<!-- entry ts=2026-09-02T23:00:35+05:30 -->
+## 2026-09-02 23:00 - Step 6 - Overdraft fees
+
+_3h 59m since previous entry_
+
+- Built src/fees.js. Fees are assessed at the close of every day, walking days 1 to today, one fee per account per day, dated the day that went negative.
+- Resolved A-01 the hard way: a fee is charged when we find out a day was negative, but it is dated that day, not the day of discovery.
+- Confirmed the cascade. E7 causes three fees, on days 2, 4 and 5. Days 4 and 5 are only negative because of the fees booked before them.
+- Proved C-06 wrong: after the day 6 reversal day 2 is back to +225.00 but all three fees are still there, so nothing returns to its pre-E7 value. Closing balance ends at 390.00, not 465.00.
+- Decided a BHD account cannot be charged an AED fee. Converting would invent an exchange rate, so the engine records a refusal instead. Never fires in the real run.
+- 78 tests pass.

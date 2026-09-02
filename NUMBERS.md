@@ -8,6 +8,12 @@ Format per entry: **Value / Source / Why not half it / Where it lives**
 
 ### N-01 - Overdraft fee: AED 25.00
 
+Value 25.00 AED, given by the brief. Stored as 2500 fils in `OVERDRAFT_FEE` in `src/fees.js`.
+
+Why not half it: the figure is fixed by the brief, but the shape of it is worth defending. It is flat rather than a percentage, which means it does not care how far overdrawn you are. That is deliberate in real products: the fee pays for the decision to let the payment through, and that decision costs the same whether the account is 1.00 or 1,000.00 short. Halving it to 12.50 would not change any behaviour in this run, only the closing balances, because every day that goes negative here is negative by far more than 25.00. Doubling it to 50.00 would change the story: day 3 would fall from 5.00 to -20.00 and take a fourth fee, so the cascade is sensitive to this number even though the rule is not.
+
+It is also once per day rather than once per overdrawn entry. Day 2 has one fee even though two separate debits contributed to it going negative.
+
 ### N-02 - Daily interest rate: 0.04%
 
 ### N-03 - AED minor-unit scale: 2
@@ -45,6 +51,8 @@ Not last-first, and not random. Earliest-first means the same input always gives
 Three, given by E10. They come out as 3.334, 3.333, 3.333 rather than three identical figures. BHD 10.000 simply does not divide by three, so something has to give: either the parts are unequal or the total is wrong. A ledger can survive unequal parts. It cannot survive a wrong total.
 
 ### N-12 - Overdraft fee cap: none
+
+No cap on the number of fees an account can take in the window. The brief gives a per day limit and nothing else, so a per window limit would be invented. In this run the account takes three fees over six days, which is well short of the six that would be possible. Real products often cap this, but any number chosen here would be mine rather than the brief's, and it would change the closing balance. Refusing to add a constant is itself the decision.
 
 ### N-13 - Hold expiry: none within the window
 

@@ -10,7 +10,23 @@ Verdict:
 
 ### C-02 - "E7 causes exactly one overdraft fee to be assessed, on Day 2"
 
-Verdict:
+Verdict: rejected. Two separate defects.
+
+The count is wrong. A fee is a ledger entry, so it counts towards the following days. Charging day 2 pulls day 3 down from 30.00 to 5.00, which leaves day 4 at -180.00 instead of -155.00, which takes a second fee, which leaves day 5 at -205.00, which takes a third. Three fees, on days 2, 4 and 5.
+
+The evidence, evaluated at the close of day 5:
+
+    day 1     250.00   clear
+    day 2    -370.00   fee, closes at -395.00
+    day 3    -395.00 + 400.00 = 5.00   clear
+    day 4       5.00 - 185.00 = -180.00   fee, closes at -205.00
+    day 5    -205.00   fee, closes at -230.00
+
+Note that day 4 is negative on customer activity alone, at -155.00, so it would have taken a fee even without the cascade. Day 5 would not have.
+
+The date is also self contradictory. The criterion says the fee is assessed on day 2. On day 2 the account showed +250.00 and nobody had any reason to charge anything. The information that day 2 was overdrawn did not exist until E7 arrived on day 5. The fee can be dated day 2, which is what this implementation does, but it cannot have been assessed on day 2. The brief's own wording, "booked with value_date equal to the day assessed", is the source of the confusion, and A-01 sets out how it was resolved.
+
+What is true instead: E7 causes three fees, dated days 2, 4 and 5, all of them discovered and booked on day 5.
 
 ### C-03 - "The Day 4 settlement of Auth-A must be accepted"
 
@@ -26,7 +42,15 @@ Verdict:
 
 ### C-06 - "After E9, all balances and fees return to their pre-E7 values"
 
-Verdict:
+Verdict: rejected.
+
+Balances do return. Day 2 goes from -370.00 back to +225.00, which is its pre-E7 value of 250.00 less the 25.00 fee that is still sitting on it. Fees do not return, and cannot.
+
+Three things stand in the way. Fees were booked as real ledger entries, and the ledger is append only, so there is nothing that can remove them. A reversal in this brief reverses one named event, E7, and nothing says it cascades to everything downstream. And even a deliberate refund would be three new credits appended to the ledger, which leaves the ledger strictly longer than it was before E7, so the pre-E7 state is unreachable by construction.
+
+The evidence: ACC-001 closes the window at 390.00. Its pre-E7 value was 465.00. The 75.00 difference is the three fees.
+
+What is true instead: after E9, the balances return to their pre-E7 values less the fees that were assessed in between, and the fees stand.
 
 ### C-07 - "The three BHD instalments in E10 must each be BHD 3.334"
 

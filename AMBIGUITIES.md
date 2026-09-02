@@ -17,9 +17,84 @@ Reversible:  where in the code the switch lives
 
 ## A-01 - Retroactive fee assessment on a day that already closed
 
+This is the central ambiguity of the whole brief. Everything else is downstream of it.
+
+Ambiguity: E7 arrives on day 5 carrying value date day 2, and reveals that day 2 closed at -370.00 rather than the +250.00 everyone believed at the time. Day 2 has been shut for three days. The rule says a fee is "assessed once per day per account when that day's closing balance is negative", and "booked with value_date equal to the day assessed". Neither sentence says what to do when the negative day is discovered late, and the phrase "the day assessed" can mean either the day being assessed or the day on which the assessing happens.
+
+Readings:
+
+(a) Charge for day 2 when we find out on day 5, and date the fee day 2. The fee belongs to the day the account was actually overdrawn.
+
+(b) Charge for day 2 when we find out on day 5, but date the fee day 5, because that is the day the assessment happened.
+
+(c) Do not charge at all. Day 2 closed clean on day 2 and a closed day is closed.
+
+Chosen: (a).
+
+Rationale: the fee exists because the account was overdrawn on a particular day, so the fee belongs to that day. Reading (b) breaks the once per day rule in an ugly way, because three separate overdrawn days would all pile onto day 5 and the account would take three fees dated the same day. Reading (c) means a customer can avoid every fee by having their debits reported late, which turns a fee rule into an incentive to file late.
+
+Impact: this is where the arithmetic diverges most. Under (a) the fee lands on day 2, which drags day 3 down to 5.00 and starts the cascade that produces fees on days 4 and 5 as well. Under (c) there are no fees at all in this run.
+
+Reversible: `assessFeesAtClose` in `src/fees.js` takes the day being closed and walks back over every earlier day. Restricting that loop to the closing day alone gives reading (c).
+
+The cost of this choice: a day can be charged a fee and then, after a later reversal, end up positive. Day 2 finishes the window at +225.00 with a 25.00 fee sitting on it. That looks wrong until you remember the account really was overdrawn as far as the bank knew, and that an append only ledger cannot take a fee back. This is the exact case the deliberately failing test in `test/design-limitation.test.js` is built on.
+
+## A-01 - Retroactive fee assessment on a day that already closed
+
+This is the central ambiguity of the whole brief. Everything else is downstream of it.
+
+Ambiguity: E7 arrives on day 5 carrying value date day 2, and reveals that day 2 closed at -370.00 rather than the +250.00 everyone believed at the time. Day 2 has been shut for three days. The rule says a fee is "assessed once per day per account when that day's closing balance is negative", and "booked with value_date equal to the day assessed". Neither sentence says what to do when the negative day is discovered late, and the phrase "the day assessed" can mean either the day being assessed or the day on which the assessing happens.
+
+Readings:
+
+(a) Charge for day 2 when we find out on day 5, and date the fee day 2. The fee belongs to the day the account was actually overdrawn.
+
+(b) Charge for day 2 when we find out on day 5, but date the fee day 5, because that is the day the assessment happened.
+
+(c) Do not charge at all. Day 2 closed clean on day 2 and a closed day is closed.
+
+Chosen: (a).
+
+Rationale: the fee exists because the account was overdrawn on a particular day, so the fee belongs to that day. Reading (b) breaks the once per day rule in an ugly way, because three separate overdrawn days would all pile onto day 5 and the account would take three fees dated the same day. Reading (c) means a customer can avoid every fee by having their debits reported late, which turns a fee rule into an incentive to file late.
+
+Impact: this is where the arithmetic diverges most. Under (a) the fee lands on day 2, which drags day 3 down to 5.00 and starts the cascade that produces fees on days 4 and 5 as well. Under (c) there are no fees at all in this run.
+
+Reversible: `assessFeesAtClose` in `src/fees.js` takes the day being closed and walks back over every earlier day. Restricting that loop to the closing day alone gives reading (c).
+
+The cost of this choice: a day can be charged a fee and then, after a later reversal, end up positive. Day 2 finishes the window at +225.00 with a 25.00 fee sitting on it. That looks wrong until you remember the account really was overdrawn as far as the bank knew, and that an append only ledger cannot take a fee back. This is the exact case the deliberately failing test in `test/design-limitation.test.js` is built on.
+
 ## A-02 - Fee cascade: do assessed fees feed into later days' balances?
 
+Ambiguity: a fee is booked as a ledger entry with a value date. The brief does not say whether that entry counts when working out whether the following day is overdrawn.
+
+Readings: (a) yes, a fee is an ordinary entry and counts like any other, (b) no, fees are excluded when testing for overdraft, so only customer activity can trigger a fee.
+
+Chosen: (a).
+
+Rationale: the rule defines the closing balance as all entries with value date on or before that day. A fee is an entry. Excluding it would need a special rule that the brief does not contain, and it would mean the printed closing balance and the balance used for the fee test are two different numbers, which is exactly the kind of hidden second truth a ledger should not have.
+
+Impact: large. Day 4 closes at -155.00 on customer activity alone, which is already a fee. But the day 2 fee reduces day 3 from 30.00 to 5.00 and day 4 from -155.00 to -180.00. Under reading (b) the count of fees would be the same in this particular run, but the closing balances would all be higher and any account sitting just above zero would behave differently.
+
+Reversible: `assessFeesAtClose` reads the balance fresh on each pass of the loop, so fees already booked are visible. Filtering them out of `balanceOn` would give reading (b).
+
+Note that this is why the days are walked in order rather than assessed all at once. Order is not a style choice here, it changes the answer.
+
+
 ## A-03 - Does a reversal also reverse the fees it caused?
+
+Ambiguity: E9 reverses E7 on day 6. E7 is what caused three fees. The brief says nothing about what happens to a fee whose cause has been undone.
+
+Readings: (a) the fees stand, (b) the fees are refunded by appending three credits, (c) the fees are removed.
+
+Chosen: (a).
+
+Rationale: (c) is not available at all, because no record is ever deleted. Between (a) and (b), a reversal in this brief reverses one named event, E7, and nothing else. Nothing says a reversal cascades to everything downstream of its target. In real banking a fee refund is a separate decision made by a human, usually after the customer complains, and it arrives as its own credit with its own reason. Inventing an automatic refund would be inventing a policy.
+
+Impact: the account closes at 390.00 rather than 465.00. Under (b) it would close at 465.00 and criterion C-06 would be correct.
+
+Reversible: nothing to switch off. Adding the refund would mean appending three credits when a reversal lands, which is a change to the reversal handler rather than to the fee code.
+
+This is the direct reason criterion C-06 is refused. Balances do come back. Fees do not.
 
 ## A-04 - Recompute-from-events vs append-correcting-entries when history changes
 
@@ -105,6 +180,18 @@ Related: a settlement for more than the held amount is not in this stream. The c
 
 ## A-12 - Overdraft fee currency vs account currency (AED fee on a BHD account)
 
+Ambiguity: the fee is specified as AED 25.00, with no mention of what happens if a non AED account goes overdrawn. ACC-002 is in BHD.
+
+Readings: (a) only AED accounts can be charged this fee, and a BHD account going negative is recorded but not charged, (b) convert 25.00 AED into BHD at some rate, (c) charge 25.000 BHD, treating the number as currency neutral.
+
+Chosen: (a).
+
+Rationale: (b) needs an exchange rate, and no rate appears anywhere in the brief. Inventing one would put a made up number into the closing balances. (c) treats 25 as a magnitude rather than an amount of money, which would charge a BHD account roughly ten times more in real terms than an AED account, since one dinar is worth about ten dirhams. (a) is the only reading that adds no invented data.
+
+Impact: none in this run. ACC-002 receives a single credit of BHD 10.000 on day 5 and is never negative. The path is tested with a made up overdrawn BHD account so the behaviour is proven rather than assumed.
+
+Reversible: the currency check at the top of `assessFeesAtClose`. A per currency fee table would slot in there.
+
 ## A-13 - E10: three entries or one entry with three components?
 
 Ambiguity: E10 is one credit of BHD 10.000 "posted as three equal instalments". It does not say whether that is one ledger line or three.
@@ -160,3 +247,19 @@ Rationale: inventing a cut off would add a constant nobody asked for and would c
 Impact: everything inside a day is simultaneous. Ordering within a day comes from arrival order only, see A-14.
 
 Reversible: days are plain whole numbers throughout, so a timestamp could replace them without changing the shape of the model.
+
+## A-17 - Hold expiry: nothing releases a hold inside the window
+
+Ambiguity: the brief never says how long a hold lasts. Auth-B is explicitly never settled inside the window, which raises the question of what happens to a hold that just sits there.
+
+Readings: (a) a hold stays open until something settles it, (b) a hold expires after some number of days and releases itself.
+
+Chosen: (a).
+
+Rationale: real card holds do expire, usually somewhere between 7 and 30 days depending on the scheme, but the brief gives no number and any number I picked would be invented. A 5 day expiry would have released Auth-B before day 6 and changed the closing figures. Refusing to invent the constant is safer than guessing it.
+
+Impact: none in this run, because Auth-B is declined and no hold survives to the end. It would matter the moment an approved hold went unsettled.
+
+Reversible: `activeHolds` in `src/holds.js` would need a day comparison. There is nothing to switch off, because nothing was added.
+
+See NUMBERS.md N-13.
