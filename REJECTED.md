@@ -58,6 +58,21 @@ Verdict:
 
 ### C-08 - "If the rounded daily interest accruals do not sum to the capitalized total, the remainder is discarded"
 
+Verdict: rejected. It contradicts the brief's own non negotiable rule, which states that the rounded daily accruals must sum exactly to the capitalised total. A rule cannot both require an exact match and permit throwing away the difference.
+
+The evidence, on ACC-001. The six closing balances are 250.00, 225.00, 625.00, 415.00, 390.00 and 390.00. Rounding each day's interest on its own gives:
+
+    0.10 + 0.09 + 0.25 + 0.17 + 0.16 + 0.16  =  0.93
+
+The week's actual interest is 0.04% of 2,295.00, which is 0.918, and that rounds to 0.92. So the independently rounded days overshoot by one fils. Discarding it leaves a credit of 0.92 sitting under daily figures that add to 0.93, and the two never reconcile.
+
+What is true instead: the remainder is allocated, not discarded. The total is rounded once, then shared back across the days by largest remainder, giving:
+
+    0.10 + 0.09 + 0.25 + 0.17 + 0.16 + 0.15  =  0.92
+
+Day 6 carries the adjustment, taking 0.15 rather than its own 0.16. Nothing is invented and nothing is lost, and the daily figures reconcile to the credit by construction rather than by luck.
+
+This is the same correction as C-07. Both criteria assume a rounding difference can be ignored, and in both cases ignoring it breaks the books.
 Verdict:
 
 ## Part 2 - Approaches abandoned mid-build

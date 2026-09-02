@@ -88,3 +88,15 @@ _3h 59m since previous entry_
 - Proved C-06 wrong: after the day 6 reversal day 2 is back to +225.00 but all three fees are still there, so nothing returns to its pre-E7 value. Closing balance ends at 390.00, not 465.00.
 - Decided a BHD account cannot be charged an AED fee. Converting would invent an exchange rate, so the engine records a refusal instead. Never fires in the real run.
 - 78 tests pass.
+
+<!-- entry ts=2026-09-03T00:11:09+05:30 -->
+## 2026-09-03 00:11 - Step 7 - Interest
+
+_1h 11m since previous entry_
+
+- Built src/interest.js. Rate held as the fraction 4/10000 so no decimal is involved anywhere.
+- Found the real tension in the brief. Rounding each of ACC-001's six days on its own gives 0.93, but the week's true interest is 0.918 which rounds to 0.92.
+- Resolved it by rounding the total once, then sharing it back over the days with the same largest remainder splitter the instalments use. Day 6 takes 0.15 instead of 0.16 and carries the adjustment where it can be seen.
+- That is the direct disproof of C-08. Discarding the remainder would lose a fils and break the rule the brief calls non negotiable.
+- Interest ignores interest already paid, so the day 6 credit does not earn on itself. 300 random balance runs all reconcile exactly.
+- 89 tests pass.

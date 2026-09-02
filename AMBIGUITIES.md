@@ -114,9 +114,47 @@ Consequence worth naming: because a balance is always derived, the same day can 
 
 ## A-05 - Which version of a revised day's balance earns interest?
 
+Ambiguity: day 2 was worth +250.00 on day 2, then -370.00 once E7 arrived, then +225.00 after the reversal. The brief says interest accrues daily on the closing balance but never says which version of a rewritten day counts.
+
+Readings: (a) the balance as it finally stands at the end of the window, (b) the balance as it was understood on the day itself, (c) accrue as you go and then post correcting adjustments when a day is revised.
+
+Chosen: (a).
+
+Rationale: the accrual is not paid out until the end of day 6, so at the moment of paying it we know what every day was actually worth. Using a figure we now know to be wrong, purely because we believed it at the time, would mean knowingly paying the wrong amount. Option (c) produces the same answer as (a) with more moving parts.
+
+Impact: day 2 earns on 225.00 rather than on 250.00 or on nothing. Under reading (b) day 2 would earn on 250.00 and days 3 to 5 would earn on the pre-E7 figures, giving a larger credit.
+
+Reversible: `accrueInterest` in `src/interest.js` reads every day with `asKnownOn` set to the last day of the window. Setting it to the day itself gives reading (b).
+
+Worth noting the deliberate difference from fees, see A-01. A fee is charged and booked at a moment in time and cannot be taken back. An accrual is not booked until day 6, so it is still free to use the best information available at the moment it is paid. The two rules treat late information differently because one has already been acted on and the other has not.
+
 ## A-06 - Does the capitalized interest credit itself earn interest?
 
+Ambiguity: the interest credit is booked with value date day 6, and day 6 is inside the window. Left alone, that credit would appear in day 6's closing balance and earn interest on itself.
+
+Readings: (a) no, interest is worked out on what the account did, ignoring interest already paid, (b) yes, whatever is in the balance earns.
+
+Chosen: (a).
+
+Rationale: the brief says accruals capitalise as a single credit at the end of day 6, which puts the credit at the very end of the window rather than inside it. Reading (b) would also make the calculation depend on itself, so running it twice would give two different answers, which is not a property a ledger should have.
+
+Impact: 0.00 in this run, because 0.04% of 0.92 rounds to nothing. It would matter on a longer window or a larger balance.
+
+Reversible: the interest filter in `balanceForAccrual` in `src/interest.js`. There is a test that runs the accrual twice and asserts the same answer both times.
+
 ## A-07 - Do fee entries count toward the interest-bearing balance?
+
+Ambiguity: fees are ledger entries with value dates. The brief does not say whether they are part of the balance that earns interest.
+
+Readings: (a) yes, a fee is an entry like any other, (b) no, interest is worked out on customer activity only.
+
+Chosen: (a).
+
+Rationale: the same argument as A-02. The closing balance is defined as all entries with value date on or before that day, and a fee is one of those entries. Excluding fees here while including them in the printed closing balance would create two different balances for the same day.
+
+Impact: day 2 earns on 225.00 instead of 250.00, day 4 on 415.00 instead of 440.00, day 5 and day 6 on 390.00 instead of 465.00. The credit is 0.92 rather than 0.95.
+
+Reversible: the same filter as A-06. It excludes interest and nothing else, so adding fees to that filter gives reading (b).
 
 ## A-08 - Auth-B: declined when available balance was already negative before the hold
 

@@ -16,6 +16,12 @@ It is also once per day rather than once per overdrawn entry. Day 2 has one fee 
 
 ### N-02 - Daily interest rate: 0.04%
 
+Value 0.04% per day, given by the brief. Held in `DAILY_RATE` in `src/interest.js` as the fraction 4 over 10000, never as the decimal 0.0004, so nothing in the calculation is ever a floating point number.
+
+Why not half it: at 0.02% ACC-001's week would earn 0.46 rather than 0.92, and more to the point the rounding problem would still be there, because it comes from six separate roundings rather than from the size of the rate. What the number does control is how visible the problem is. At this rate the daily figures are small enough that a single fils of adjustment shows up clearly. At a much larger rate the adjustment would be lost in the noise, and at a much smaller one every day would round to zero and there would be nothing to reconcile.
+
+Note it is 0.04% per day, not per year. Over a year that is about 15%, which is high for a deposit rate but this is a six day window and the brief is explicit.
+
 ### N-03 - AED minor-unit scale: 2
 
 Value 2, from ISO 4217. Not 1, because one place cannot express a 25 fils fee or a 0.05 accrual. Not 4, because no AED payment rail settles that. Lives in `CURRENCIES.AED.scale`.
@@ -37,6 +43,16 @@ The scale is attached to each currency, not shared across the project. That is w
 Round down, then hand the leftover units back out. Not round half up on each part independently, because that is what produces 3.334 three times and a total of 10.002. Flooring can only ever lose, never gain, and the leftover step gives back exactly what was lost. Lives in `distribute` in `src/allocate.js`.
 
 ### N-08 - Interest basis (which balance the rate applies to)
+
+The closing ledger balance of each day, taken as it finally stands at the end of the window, positive days only, with fees included and interest excluded. See AMBIGUITIES.md A-05, A-06 and A-07 for each of those three choices.
+
+Positive only means strictly above zero. A day closing at exactly 0.00 earns nothing, which matters because 0.04% of zero is zero anyway, so the rule only really matters as a statement that negative days do not produce negative interest.
+
+### N-09 - Day-count convention (simple, non-compounding within window)
+
+Simple interest. Each day's accrual is worked out on that day's own closing balance, and no accrual is added to the balance before the next day is worked out.
+
+Why not compound daily: the brief says accruals capitalise as a single credit at the end of day 6. Capitalise is the word for the moment interest joins the balance and starts earning, so saying it happens once at the end says plainly that it does not happen six times along the way. Compounding daily over six days at this rate would change the credit by well under a fils, so the difference is invisible here, but the rule would matter over a year.
 
 ### N-09 - Day-count convention (simple, non-compounding within window)
 
