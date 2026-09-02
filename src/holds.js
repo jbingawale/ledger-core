@@ -47,11 +47,11 @@ export function availableBalance(ledger, { account, currency, day, asKnownOn = A
 }
 
 /** What happened to every authorisation on an account. */
-export function authorizationStates(ledger, { account }) {
+export function authorizationStates(ledger, { account, upToDay = ALWAYS }) {
   const states = new Map();
 
   for (const record of ledger.all()) {
-    if (record.account !== account) continue;
+    if (record.account !== account || record.day > upToDay) continue;
 
     if (record.kind === RECORD_KINDS.HOLD_OPENED) {
       states.set(record.authId, { authId: record.authId, state: AUTH_STATES.OPEN, amount: record.amount, day: record.day });

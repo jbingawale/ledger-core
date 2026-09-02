@@ -272,6 +272,8 @@ Impact: none in this stream, because there is only one 620.00 debit. It matters 
 
 Reversible: `reverses` on the reversal event in `src/events.js`.
 
+Related decision, not in the stream but the code has to answer it: a second reversal naming E7 is refused and recorded, rather than posting a second 620.00 credit. Without that guard a duplicated message in the feed would silently double the correction. The refusal goes into the ledger with its reason, the same as any other refused event.
+
 ## A-16 - Day boundaries: no timestamps, only day numbers
 
 Ambiguity: the brief works in day numbers, 1 through 6. There are no clock times, no time zone and no cut off.

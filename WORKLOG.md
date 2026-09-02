@@ -100,3 +100,15 @@ _1h 11m since previous entry_
 - That is the direct disproof of C-08. Discarding the remainder would lose a fils and break the rule the brief calls non negotiable.
 - Interest ignores interest already paid, so the day 6 credit does not earn on itself. 300 random balance runs all reconcile exactly.
 - 89 tests pass.
+
+<!-- entry ts=2026-09-03T00:35:10+05:30 -->
+## 2026-09-03 00:35 - Step 8 - Replay and report
+
+_24m since previous entry_
+
+- Built src/stream.js with the two accounts and all ten events, src/replay.js to walk the window day by day, src/report.js to print it, src/main.js as the entry point.
+- Added a report line that names the earlier days a backdated event rewrote, with the figure before and after. Day 5 shows three days collapsing, day 6 shows them coming back.
+- Reversal handling posts an equal and opposite entry pointing at the original event id, and refuses a second reversal of the same event.
+- Full run: ACC-001 closes at 390.92, three fees on days 2, 4 and 5, interest 0.92. ACC-002 closes at 10.008. 18 ledger records, none edited.
+- Wrote the README including how to read every line of the output.
+- 103 tests pass.

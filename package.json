@@ -8,7 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "replay": "node src/replay.js",
+    "replay": "node src/main.js",
     "test": "node --test \"test/**/*.test.js\"",
     "test:failing": "node --test test/design-limitation.test.js",
     "log": "node tools/worklog.mjs add",

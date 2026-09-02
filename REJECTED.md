@@ -101,4 +101,12 @@ I started to write the instalment split and the interest capitalisation as two s
 
 ### R-07 - Single-pass fee assessment across all six days
 
+My first version worked out all six closing balances, then counted the negative ones and charged a fee for each. It gave one fee, on day 2, which looked like it agreed with the acceptance criteria.
+
+Dropped once I saw why it agreed. A fee is a ledger entry with a value date, so charging day 2 changes what day 3 and day 4 are worth. A single pass reads all six balances before any fee exists, so it never sees the days that only go negative because of the fees before them. Rewritten to walk the days in order and book each fee before looking at the next day, which produces three fees rather than one.
+
+The lesson worth keeping: with this rule, order of evaluation is not a style choice, it changes the answer.
+
 ### R-08 - Express / HTTP scaffold
+
+Never built. Noting it because Express was my instinct as a Node developer and the brief forbids a web layer outright. There is no server, no route, no port and no framework anywhere in this repository. The entire thing runs as `npm run replay` and `npm test`.
